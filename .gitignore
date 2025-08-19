@@ -1,2 +1,4 @@
 *.o
 dwmblocks
+nohup.out
+config.h
