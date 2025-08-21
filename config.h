@@ -4,6 +4,7 @@
 #define LEADING_DELIMITER
 
 const Block blocks[] = {
+	BLOCK("sb-teams-noti",			1,  11),
 	BLOCK("sb-ha-phone-battery",	10, 1),
 	BLOCK("sb-device-status",		5,  2),
 	BLOCK("sb-todo",				1,  3),
