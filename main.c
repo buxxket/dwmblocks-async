@@ -113,31 +113,25 @@ int getStatus(char *new, char *old) {
 void updateBlock(int i) {
     char *output = outputs[i];
     char buffer[LEN(outputs[0]) - CLICKABLE_BLOCKS];
+    memset(buffer, 0, sizeof(buffer)); // Zero buffer!
     int bytesRead = read(pipes[i][0], buffer, LEN(buffer));
 
     // Trim UTF-8 string to desired length
     int count = 0, j = 0;
-    while (buffer[j] != '\n' && count < CMDLENGTH) {
+    while (buffer[j] != '\n' && count < CMDLENGTH && buffer[j] != '\0') {
         count++;
-
         // Skip continuation bytes, if any
         char ch = buffer[j];
         int skip = 1;
         while ((ch & 0xc0) > 0x80) ch <<= 1, skip++;
         j += skip;
     }
-
-    // Cache last character and replace it with a trailing space
-    char ch = buffer[j];
-    buffer[j] = ' ';
-
-    // Trim trailing spaces
-    while (j >= 0 && buffer[j] == ' ') j--;
-    buffer[j + 1] = 0;
+    buffer[j] = 0;  // null-terminate at newline or end of string
 
     // Clear the pipe
     if (bytesRead == LEN(buffer)) {
-        while (ch != '\n' && read(pipes[i][0], &ch, 1) == 1)
+        char ch;
+        while ((read(pipes[i][0], &ch, 1) == 1) && ch != '\n')
             ;
     }
 
@@ -150,7 +144,6 @@ void updateBlock(int i) {
 
     strcpy(output, buffer);
 
-    // Remove execution lock for the current block
     execLock &= ~(1 << i);
 }
 
